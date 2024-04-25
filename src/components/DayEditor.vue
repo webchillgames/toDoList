@@ -54,27 +54,19 @@
 <script lang="ts" setup>
 import { fbdb } from '@/firebase'
 import { ref as firebaseRef, set, get, child } from 'firebase/database'
-// import { daysTitles, monthTitles } from '@/dictionaries'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const date = ref(new Date())
 const toDoList = ref<string[]>([])
 const inputs = ref<number>(3)
-const dayId: string = setDayId(date.value)
-// const dayTitle: string = setUserDayTitle(date.value)
-// const calendarIsVisible = ref(false)
 
+const dayId = computed((): string => {
+  return setDayId(date.value)
+})
 function appendToDoList(e: Event) {
   const input = e.target as HTMLInputElement
   toDoList.value.push(input.value)
 }
-
-// function setUserDayTitle(date: Date | undefined): string {
-//   if (!date) {
-//     return ''
-//   }
-//   return `${daysTitles[date.getDay()]} ${date.getDate()} ${monthTitles[date.getMonth()]}`
-// }
 
 function setDayId(date: Date | undefined): string {
   if (!date) {
@@ -93,7 +85,7 @@ async function save(): Promise<void> {
 }
 
 async function create(): Promise<void> {
-  return set(firebaseRef(fbdb, 'toDoList/' + dayId), toDoList.value)
+  return set(firebaseRef(fbdb, 'toDoList/' + dayId.value), toDoList.value)
 }
 
 async function update() {
@@ -111,11 +103,9 @@ async function update() {
 }
 
 async function fetch() {
-  console.log(dayId)
-
   const dbRef = firebaseRef(fbdb)
 
-  return get(child(dbRef, `toDoList/${dayId}`))
+  return get(child(dbRef, `toDoList/${dayId.value}`))
 }
 
 function setValue(i: number): string {
