@@ -1,11 +1,11 @@
 <template>
   <div>
-    <WeekList />
+    <ToDo />
   </div>
 </template>
 
 <script setup lang="ts">
-import WeekList from '@/components/WeekList.vue'
+import ToDo from '@/components/ToDo.vue'
 </script>
 
 <style lang="scss"></style>

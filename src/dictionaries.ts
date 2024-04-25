@@ -1,4 +1,4 @@
-export const weekTitles = [
+export const daysTitles = [
   'Sunday',
   'Monday',
   'Tuesday',

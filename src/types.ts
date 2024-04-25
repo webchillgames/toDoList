@@ -1,15 +1,19 @@
-export type TypeWeek = {
-  list: TypeDay[]
-}
+// import type { Ref } from 'vue'
+// import type { Day } from '@/classes'
 
-export type TypeWeekCreate = {
-  list: TypeDay[]
-  id: string
-}
+// export type TypeWeek = {
+//   week: Ref<Day[]>
+//   id: string
+// }
+
+// export type TypeDay = {
+//   date: Date
+//   id: string
+//   userDate: string
+//   toDoList: Ref<string[]>
+// }
 
 export type TypeDay = {
-  date: Date
   id: string
-  userDate: string
-  list: string[]
+  toDoList: string[]
 }

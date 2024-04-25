@@ -1,48 +1,38 @@
 import { fbdb } from '@/firebase'
 import { ref, type Ref } from 'vue'
-import { ref as fbRef, set, child, get, update, push } from 'firebase/database'
-import type { TypeWeekCreate, TypeDay } from '@/types'
-import { weekTitles, monthTitles } from '@/dictionaries'
+import { ref as firebaseRef, set, child, get } from 'firebase/database'
+import type { TypeWeek, TypeDay } from '@/types'
+import { daysTitles, monthTitles } from '@/dictionaries'
 
 export class ToDoList {
   start: string
-  _list: Ref<TypeDay[]>
+  _week = ref<TypeWeek>()
 
   constructor(start: string) {
     this.start = start
-    this._list = ref([])
   }
 
-  fetchList(): void {
-    const dbRef = fbRef(fbdb)
+  async fetchList(): Promise<void> {
+    const dbRef = firebaseRef(fbdb)
 
-    get(child(dbRef, `list/${this.start}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          this._list.value = snapshot.val()
-        } else {
-          console.log('No data available')
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-      })
+    try {
+      const snapshot = await get(child(dbRef, `toDoList/${this.start}`))
+      if (snapshot.exists()) {
+        this._week.value = snapshot.val()
+      } else {
+        console.log('No data available')
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
-  getList() {
-    return this._list
+  getWeek(): TypeWeek {
+    return this._week.value
   }
 
-  create(week: TypeWeekCreate): void {
-    // const db = getDatabase();
-    const weekListRef = fbRef(fbdb, 'list/' + week.id)
-
-    // week.list.forEach(item => {
-    //   // Для каждого элемента создаем уникальный ключ в подпапке week.id
-    //   const newItemRef = push(weekListRef);
-    //   set(newItemRef, item);
-    // });
-    set(fbRef(fbdb, 'list/' + week.id), week.list)
+  async create(week: TypeWeek): Promise<void> {
+    set(firebaseRef(fbdb, 'toDoList/' + week.id), week)
   }
 
   updateList(listId: string, dayIdx: string, list: string[]): void {
@@ -50,9 +40,9 @@ export class ToDoList {
     //   [`list/${listId}/${dayIdx}/list`]: list
     // }
     // updates['/list/' + listId + dayIdx + '/list'] = list
-    // const newPostKey = push(child(fbRef(fbdb), 'list')).key
+    // const newPostKey = push(child(firebaseRef(fbdb), 'list')).key
     // console.log(newPostKey)
-    // update(fbRef(fbdb), updates)
+    // update(firebaseRef(fbdb), updates)
   }
 }
 
@@ -60,13 +50,20 @@ export class Day {
   date: Date
   id: string
   userDate: string
-  list: Ref<string[]>
+  _toDoList = ref<string[]>([])
 
-  constructor(date: Date, list: string[]) {
+  constructor(date: Date) {
     this.date = date
     this.id = this.setDayId()
     this.userDate = this.setUserDayTitle()
-    this.list = ref(list)
+  }
+
+  setList(list: string[]) {
+    this._toDoList.value = list
+  }
+
+  getToDoList() {
+    return this._toDoList
   }
 
   setDayId(): string {
@@ -77,6 +74,6 @@ export class Day {
   }
 
   setUserDayTitle(): string {
-    return `${weekTitles[this.date.getDay()]} ${this.date.getDate()} ${monthTitles[this.date.getMonth()]}`
+    return `${daysTitles[this.date.getDay()]} ${this.date.getDate()} ${monthTitles[this.date.getMonth()]}`
   }
 }
